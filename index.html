@@ -402,7 +402,7 @@
                 Create an object
               </summary>
               <div class="step-body">
-                <!-- ✏️ Replace this with your actual create-object instructions -->
+                <!-- Replace this with your actual create-object instructions -->
                 Use the "Create Object" control in the simulation to add a new
                 optical element (lens, mirror, prism, etc.) to the scene.
               </div>
@@ -414,9 +414,9 @@
                 Select an object
               </summary>
               <div class="step-body">
-                <!-- ✏️ Replace with your select instructions -->
+                <!--  Replace with your select instructions -->
                 Click the object selector to choose which placed object you
-                want to configure. All property controls below apply to the
+                want to configure. All property controls apply to the
                 currently selected object.
               </div>
             </details>
@@ -427,7 +427,7 @@
                 Set position &amp; rotation
               </summary>
               <div class="step-body">
-                <!-- ✏️ Replace with your coordinate instructions -->
+                <!-- Replace with your coordinate instructions -->
                 Enter X, Y, Z coordinates to position the object in 3D space.
                 Use the rotation fields (X / Y / Z) to orient it — values are
                 in degrees.
@@ -440,7 +440,7 @@
                 Set dimensions
               </summary>
               <div class="step-body">
-                <!-- ✏️ Replace with your dimension instructions -->
+                <!-- Replace with your dimension instructions -->
                 Adjust Length, Height, and Width to scale the optical element.
                 Units are in the simulation's internal coordinate system.
               </div>
@@ -452,10 +452,12 @@
                 Set refractive index
               </summary>
               <div class="step-body">
-                <!-- ✏️ Replace with your refractive index instructions -->
+                <!--  Replace with your refractive index instructions -->
                 Enter the refractive index (n) of the material. Common values:
-                air ≈ 1.0, glass ≈ 1.5, diamond ≈ 2.42. Affects how light
-                bends at the object's surface.
+                air ≈ 1.0, glass ≈ 1.5, diamond ≈ 2.42, you can create an opaque 
+                object by setting this parameter to 0. Overlapping objects take
+                on the average refractive index, you can use this to create 
+                hollow objects.
               </div>
             </details>
 
