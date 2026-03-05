@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Optics Simulator</title>
+
+  <!-- Fonts: clean scientific pairing -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* =============================================
+       CSS CUSTOM PROPERTIES
+       Edit these to retheme the whole site quickly.
+    ============================================= */
+    :root {
+      --bg:        #f5f4f0;       /* page background */
+      --surface:   #ffffff;       /* card / panel background */
+      --border:    #dddbd4;       /* subtle borders */
+      --text:      #1a1a18;       /* primary text */
+      --muted:     #6b6a63;       /* secondary / label text */
+      --accent:    #1a56db;       /* blue accent (links, highlights) */
+      --accent-lt: #e8eeff;       /* light accent background */
+      --mono:      'DM Mono', monospace;
+      --sans:      'DM Sans', sans-serif;
+      --radius:    6px;
+      --shadow:    0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* =============================================
+       RESET & BASE
+    ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      font-weight: 300;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* =============================================
+       LAYOUT
+    ============================================= */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 64px;
+    }
+
+    /* =============================================
+       HEADER
+    ============================================= */
+    header {
+      padding: 40px 0 32px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 40px;
+      /* fade in on load */
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .header-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    header h1 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    header p.subtitle {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 560px;
+    }
+
+    /* =============================================
+       TWO-COLUMN GRID  (sim left, info right)
+    ============================================= */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 28px;
+      align-items: start;
+      animation: fadeUp 0.5s 0.1s ease both;
+    }
+
+    @media (max-width: 800px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    /* =============================================
+       SIMULATION IFRAME PANEL
+    ============================================= */
+    .sim-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sim-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    /* "traffic light" decorative dots */
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
+
+    .sim-panel-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    /* ── IFRAME ──────────────────────────────────
+       The GlowScript sim lives here.
+       Change the src to your own program URL.
+       The iframe won't load locally (cross-origin),
+       but it WILL work on GitHub Pages.
+    ─────────────────────────────────────────────── */
+    #sim-frame {
+      display: block;
+      width: 100%;
+      height: 600px;          /* ← adjust height if needed */
+      border: none;
+    }
+
+    /* =============================================
+       RIGHT SIDEBAR
+    ============================================= */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Generic card used throughout the sidebar */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .card-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    /* =============================================
+       HOW-TO-USE  (accordion steps)
+       To add/remove steps: copy or delete an
+       <details> block inside .steps-list.
+    ============================================= */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    details {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    details summary {
+      cursor: pointer;
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      user-select: none;
+    }
+    details summary::-webkit-details-marker { display: none; }
+
+    /* chevron icon via pseudo-element */
+    details summary::after {
+      content: '›';
+      margin-left: auto;
+      font-size: 1rem;
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+    details[open] summary::after { transform: rotate(90deg); }
+
+    .step-num {
+      font-family: var(--mono);
+      font-size: 10px;
+      background: var(--accent-lt);
+      color: var(--accent);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    details .step-body {
+      padding: 10px 12px 12px;
+      font-size: 0.83rem;
+      color: var(--muted);
+      line-height: 1.55;
+      border-top: 1px solid var(--border);
+    }
+
+    /* =============================================
+       PARAMETER REFERENCE TABLE
+       Rows are easy to add: copy a <tr> and edit.
+    ============================================= */
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .param-table th {
+      text-align: left;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 6px 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .param-table td {
+      padding: 7px 6px 7px 0;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .param-table tr:last-child td { border-bottom: none; }
+
+    .param-table td:first-child {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    /* =============================================
+       EXTERNAL LINK BUTTON
+    ============================================= */
+    .btn-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 7px 12px;
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-link:hover { background: var(--accent); color: #fff; }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    footer {
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      animation: fadeUp 0.5s 0.2s ease both;
+    }
+
+    footer a { color: var(--muted); text-decoration: underline; }
+    footer a:hover { color: var(--text); }
+
+    /* =============================================
+       ANIMATION KEYFRAMES
+    ============================================= */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-wrap">
+
+    <!-- ══════════════════════════════════════════
+         HEADER
+         Edit the title and subtitle text below.
+    ═══════════════════════════════════════════ -->
+    <header>
+      <div class="header-label">GlowScript · Ray Optics</div>
+      <h1>3D Optical System Simulator</h1>
+      <p class="subtitle">
+        An interactive 3D ray-optics simulation. Place optical objects,
+        set their geometry and material properties, and trace light paths
+        through the system in real time.
+      </p>
+    </header>
+
+    <!-- ══════════════════════════════════════════
+         MAIN GRID  (iframe + sidebar)
+    ═══════════════════════════════════════════ -->
+    <div class="main-grid">
+
+      <!-- ── SIMULATION ──────────────────────── -->
+      <div class="sim-panel">
+        <div class="sim-panel-header">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="sim-panel-title">3DOptSimCopy — glowscript.org</span>
+        </div>
+
+        <!--
+          ┌─────────────────────────────────────┐
+          │  IFRAME  — your GlowScript sim      │
+          │  The URL below points to your prog. │
+          │  If GlowScript blocks embedding,    │
+          │  swap this for the /iframe/ URL or  │
+          │  link directly (see sidebar button).│
+          └─────────────────────────────────────┘
+        -->
+        <iframe
+          id="sim-frame"
+          src="https://www.glowscript.org/#/user/LTJ/folder/MyPrograms/program/3DOptSimCopy"
+          title="3D Optics Simulator"
+          allowfullscreen
+          loading="lazy"
+        ></iframe>
+      </div>
+
+      <!-- ── SIDEBAR ─────────────────────────── -->
+      <aside class="sidebar">
+
+        <!-- Open in GlowScript button -->
+        <div class="card" style="padding: 14px 20px;">
+          <a
+            class="btn-link"
+            href="https://www.glowscript.org/#/user/LTJ/folder/MyPrograms/program/3DOptSimCopy"
+            target="_blank"
+            rel="noopener"
+          >
+            ↗ Open full simulation
+          </a>
+          <p style="font-size:0.78rem; color:var(--muted); margin-top:10px;">
+            Opens in GlowScript for the best experience,
+            or if the embedded version doesn't load.
+          </p>
+        </div>
+
+        <!-- How to use -->
+        <div class="card">
+          <div class="card-title">How to use</div>
+
+          <!--
+            ACCORDION STEPS
+            To add a step: copy one <details> block and edit the text.
+            To remove:     delete the <details> block.
+          -->
+          <div class="steps-list">
+
+            <details open>
+              <summary>
+                <span class="step-num">01</span>
+                Create an object
+              </summary>
+              <div class="step-body">
+                <!-- ✏️ Replace this with your actual create-object instructions -->
+                Use the "Create Object" control in the simulation to add a new
+                optical element (lens, mirror, prism, etc.) to the scene.
+              </div>
+            </details>
+
+            <details>
+              <summary>
+                <span class="step-num">02</span>
+                Select an object
+              </summary>
+              <div class="step-body">
+                <!-- ✏️ Replace with your select instructions -->
+                Click the object selector to choose which placed object you
+                want to configure. All property controls below apply to the
+                currently selected object.
+              </div>
+            </details>
+
+            <details>
+              <summary>
+                <span class="step-num">03</span>
+                Set position &amp; rotation
+              </summary>
+              <div class="step-body">
+                <!-- ✏️ Replace with your coordinate instructions -->
+                Enter X, Y, Z coordinates to position the object in 3D space.
+                Use the rotation fields (X / Y / Z) to orient it — values are
+                in degrees.
+              </div>
+            </details>
+
+            <details>
+              <summary>
+                <span class="step-num">04</span>
+                Set dimensions
+              </summary>
+              <div class="step-body">
+                <!-- ✏️ Replace with your dimension instructions -->
+                Adjust Length, Height, and Width to scale the optical element.
+                Units are in the simulation's internal coordinate system.
+              </div>
+            </details>
+
+            <details>
+              <summary>
+                <span class="step-num">05</span>
+                Set refractive index
+              </summary>
+              <div class="step-body">
+                <!-- ✏️ Replace with your refractive index instructions -->
+                Enter the refractive index (n) of the material. Common values:
+                air ≈ 1.0, glass ≈ 1.5, diamond ≈ 2.42. Affects how light
+                bends at the object's surface.
+              </div>
+            </details>
+
+            <!--
+              ➕ ADD MORE STEPS HERE — copy the block above and edit:
+
+              <details>
+                <summary>
+                  <span class="step-num">06</span>
+                  Your step title
+                </summary>
+                <div class="step-body">
+                  Your step description.
+                </div>
+              </details>
+            -->
+
+          </div>
+        </div>
+
+        <!-- Parameter reference -->
+        <div class="card">
+          <div class="card-title">Parameter reference</div>
+
+          <!--
+            PARAMETER TABLE
+            To add a row: copy a <tr> block and edit the cells.
+            Column 1: parameter name (monospace, blue)
+            Column 2: description
+          -->
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Param</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>x, y, z</td>
+                <td>World-space position of the object's centre</td>
+              </tr>
+              <tr>
+                <td>rx, ry, rz</td>
+                <td>Rotation around each axis (degrees)</td>
+              </tr>
+              <tr>
+                <td>length</td>
+                <td>Extent along the object's local X axis</td>
+              </tr>
+              <tr>
+                <td>height</td>
+                <td>Extent along the object's local Y axis</td>
+              </tr>
+              <tr>
+                <td>width</td>
+                <td>Extent along the object's local Z axis</td>
+              </tr>
+              <tr>
+                <td>n</td>
+                <td>Refractive index of the material</td>
+              </tr>
+              <!--
+                ➕ ADD MORE ROWS HERE:
+
+                <tr>
+                  <td>param_name</td>
+                  <td>What it controls</td>
+                </tr>
+              -->
+            </tbody>
+          </table>
+        </div>
+
+      </aside>
+    </div><!-- /.main-grid -->
+
+    <!-- ══════════════════════════════════════════
+         FOOTER  — edit name / links as needed
+    ═══════════════════════════════════════════ -->
+    <footer>
+      <span>3D Optics Simulator · built with <a href="https://www.glowscript.org" target="_blank">GlowScript</a></span>
+      <span>
+        <a href="https://github.com/LTJ" target="_blank">GitHub</a>
+        &nbsp;·&nbsp;
+        <a href="https://www.glowscript.org/#/user/LTJ/folder/MyPrograms/program/3DOptSimCopy" target="_blank">Source program</a>
+      </span>
+    </footer>
+
+  </div><!-- /.page-wrap -->
+</body>
+</html>
