@@ -124,7 +124,7 @@
     /* ── BOTTOM INFO STRIP  (3 columns) ──────── */
     .info-strip {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
       gap: 20px;
       animation: fadeUp 0.5s 0.2s ease both;
     }
@@ -410,7 +410,7 @@
         <div class="steps-list">
 
           <details open>
-            <summary><span class="step-num"></span> Total internal reflection</summary>
+            <summary><span class="step-num">💡</span> Total internal reflection</summary>
             <div class="step-body">
               Increase the refractive index and rotate the object until rays
               stop passing through — this is total internal reflection
@@ -419,7 +419,7 @@
           </details>
 
           <details>
-            <summary><span class="step-num"></span> Mirrors</summary>
+            <summary><span class="step-num">💡</span> Mirrors</summary>
             <div class="step-body">
               Set n = 0 to make an object behave as a perfect mirror.
               Rays hitting the surface will reflect rather than refract.
@@ -427,7 +427,7 @@
           </details>
 
           <details>
-            <summary><span class="step-num"></span> Opaque absorbers</summary>
+            <summary><span class="step-num">💡</span> Opaque absorbers</summary>
             <div class="step-body">
               Set n to any negative value to make an object fully absorb
               all light that hits it. Useful for creating apertures,
@@ -436,7 +436,7 @@
           </details>
 
           <details>
-            <summary><span class="step-num"></span> Hollow objects</summary>
+            <summary><span class="step-num">💡</span> Hollow objects</summary>
             <div class="step-body">
               Overlap two objects with refractive indices n₁ and n₂. The
               overlapping region takes on the average (n₁ + n₂) / 2, letting
@@ -444,6 +444,45 @@
             </div>
           </details>
 
+          <!--
+            ➕ ADD MORE TIPS — same pattern as above
+          -->
+
+        </div>
+      </div>
+
+      <!-- Limitations -->
+      <div class="card">
+        <div class="card-title">Limitations</div>
+        <div class="steps-list">
+
+          <details open>
+            <summary><span class="step-num">⚠</span> Rays inside objects</summary>
+            <div class="step-body">
+              The simulation breaks down if a ray is created inside a refractive
+              object and allowed to exit it. Always place ray sources in open space.
+            </div>
+          </details>
+
+          <details>
+            <summary><span class="step-num">⚠</span> Interaction limit</summary>
+            <div class="step-body">
+              Each beam is cut short after 100 interactions (reflections or
+              refractions). Complex scenes with many overlapping objects may
+              hit this limit before rays fully exit the system.
+            </div>
+          </details>
+
+          <details>
+            <summary><span class="step-num">⚠</span> Performance</summary>
+            <div class="step-body">
+              Performance decreases with every added object and interaction.
+              Results will vary by device — a decent PC can handle upwards of
+              10,000 interactions, while a phone may struggle with far fewer.
+              If the simulation slows down, try reducing the number of objects
+              or rays.
+            </div>
+          </details>
 
         </div>
       </div>
