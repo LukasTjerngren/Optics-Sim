@@ -16,13 +16,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>3D Optics Simulator</title
 
-  <!--
-    GlowScript CSS only — the JS libs are loaded at the end of <body>.
-    Reason: the sim script is an inline IIFE that uses $() immediately.
-    If jQuery were in <head> it would load before the DOM exists;
-    placing everything at end of <body> guarantees DOM is ready AND
-    all libs are defined before the sim IIFE runs.
-  -->
   <link type="text/css" href="https://www.glowscript.org/css/redmond/2.1/jquery-ui.custom.css" rel="stylesheet" />
   <link type="text/css" href="https://www.glowscript.org/css/ide.css" rel="stylesheet" />
 
